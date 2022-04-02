@@ -1,7 +1,8 @@
-import classes from "./Burger.module.css";
-import BurgerIngredient from "./BurgerIngredient/BurgerIngredient";
+import classes from './Burger.module.css';
+import BurgerIngredient from './BurgerIngredient/BurgerIngredient';
 
 const Burger = (props) => {
+    console.log(props);
     let transformedIngredient = Object.keys(props.ingredients)
         .map((igKey) => {
             // igKey is Ingredient Key
@@ -9,11 +10,12 @@ const Burger = (props) => {
                 return <BurgerIngredient key={igKey + i} type={igKey} />;
             });
         })
-        .reduce((arr, el) => { // flat array
+        .reduce((arr, el) => {
+            // flat array
             return arr.concat(el);
         }, []);
 
-    if(transformedIngredient.length === 0) {
+    if (transformedIngredient.length === 0) {
         transformedIngredient = <p>Please start adding ingredients</p>;
     }
 
