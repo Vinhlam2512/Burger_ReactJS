@@ -6,6 +6,7 @@ import classes from './ContactData.module.css';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import * as actions from '../../../store/actions/index';
+import { updateObject } from '../../../shared/utility';
 
 class ContactData extends Component {
     state = {
@@ -110,19 +111,33 @@ class ContactData extends Component {
     };
 
     inputChangeHandler = (event, inputIdentifier) => {
-        const updatedOrderForm = {
-            ...this.state.orderForm, // clone order form in state
-        };
-        const updatedFormElement = {
-            ...updatedOrderForm[inputIdentifier], // clone object in state at index = inputIdentifier
-        };
-        updatedFormElement.value = event.target.value; // assign value when user onChange input to value in updatedFormElement
-        updatedFormElement.valid = this.checkValidity(
-            updatedFormElement.value,
-            updatedFormElement.validation
+        // const updatedOrderForm = {
+        //     ...this.state.orderForm, // clone order form in state
+        // };
+        const updatedFormElement = updateObject(
+            this.state.orderForm[inputIdentifier],
+            {
+                value: event.target.value,
+                valid: this.checkValidity(
+                    event.target.value,
+                    this.state.validation
+                ),
+                touched: true,
+            }
         );
-        updatedFormElement.touched = true;
-        updatedOrderForm[inputIdentifier] = updatedFormElement; // assign object (at index = inputIdentifier) =  updatedFormElement (at index = inputIdentifier)
+        // const updatedFormElement = {
+        //     ...updatedOrderForm[inputIdentifier], // clone object in state at index = inputIdentifier
+        // };
+        // updatedFormElement.value = event.target.value; // assign value when user onChange input to value in updatedFormElement
+        // updatedFormElement.valid = this.checkValidity(
+        //     updatedFormElement.value,
+        //     updatedFormElement.validation
+        // );
+        // updatedFormElement.touched = true;
+        const updatedOrderForm = updateObject(this.state.orderForm, {
+            [inputIdentifier]: updatedFormElement,
+        });
+        // updatedOrderForm[inputIdentifier] = updatedFormElement; // assign object (at index = inputIdentifier) =  updatedFormElement (at index = inputIdentifier)
 
         let formIsValid = true;
         for (let inputIdentifier in updatedOrderForm) {
@@ -147,8 +162,9 @@ class ContactData extends Component {
             ingredients: this.props.ings,
             price: this.props.price,
             orderData: formData,
+            userId: this.props.userId,
         };
-        this.props.onOrderBurger(order);
+        this.props.onOrderBurger(order, this.props.token);
     };
 
     render() {
@@ -198,13 +214,15 @@ const mapStateToProps = (state) => {
         ings: state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
         loading: state.order.loading,
+        token: state.auth.token,
+        userId: state.auth.userId,
     };
 }; // get data from redux store
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onOrderBurger: (orderData) =>
-            dispatch(actions.purchaseBurger(orderData)),
+        onOrderBurger: (orderData, token) =>
+            dispatch(actions.purchaseBurger(orderData, token)),
     };
 }; // dispatch action to redux store
 
